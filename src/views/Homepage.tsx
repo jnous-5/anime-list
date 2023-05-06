@@ -39,7 +39,7 @@ const Homepage = (): JSX.Element => {
   const [debouncedSearchBarValue] = useDebounce(searchBarValue, 1000);
 
   const [isActiveStarFilter, setIsActiveStarFilter] = useState(false);
-  const [isActiveHeartFilter, setIsActiveHeartFilter] = useState(false);
+  const [isActiveFavoriteFilter, setIsActiveFavoriteFilter] = useState(false);
 
   const [animeData, setAnimeData] = useState<Array<Anime>>([]);
   const [paginationData, setPaginationData] = useState<PaginationData>({});
@@ -149,16 +149,31 @@ const Homepage = (): JSX.Element => {
   };
 
   const filteredAnimeData = useMemo(() => {
+    let updatedAnimeData = animeData;
+
     if (debouncedSearchBarValue) {
-      return animeData.filter((anime) => {
+      updatedAnimeData = updatedAnimeData.filter((anime) => {
         return anime.title
           .toLowerCase()
           .includes(debouncedSearchBarValue.toLowerCase());
       });
     }
 
-    return animeData;
-  }, [animeData, debouncedSearchBarValue]);
+    if (isActiveStarFilter) {
+      updatedAnimeData = updatedAnimeData.filter((anime) => anime.isStarred);
+    }
+
+    if (isActiveFavoriteFilter) {
+      updatedAnimeData = updatedAnimeData.filter((anime) => anime.isFavorite);
+    }
+
+    return updatedAnimeData;
+  }, [
+    animeData,
+    debouncedSearchBarValue,
+    isActiveStarFilter,
+    isActiveFavoriteFilter,
+  ]);
 
   return (
     <>
@@ -175,10 +190,10 @@ const Homepage = (): JSX.Element => {
             />
           </button>
 
-          <button onClick={() => setIsActiveHeartFilter((prev) => !prev)}>
+          <button onClick={() => setIsActiveFavoriteFilter((prev) => !prev)}>
             <Heart
-              fill={isActiveHeartFilter ? "#ce2a29" : "transparent"}
-              stroke={isActiveHeartFilter ? "#ce2a29" : "currentColor"}
+              fill={isActiveFavoriteFilter ? "#ce2a29" : "transparent"}
+              stroke={isActiveFavoriteFilter ? "#ce2a29" : "currentColor"}
             />
           </button>
         </div>
