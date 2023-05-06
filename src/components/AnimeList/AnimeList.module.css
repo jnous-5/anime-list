@@ -1,0 +1,29 @@
+.container {
+  @media (min-width: 768px) {
+    margin: -10px;
+  }
+}
+
+.item {
+  width: 100%;
+  margin-bottom: 10px;
+
+  @media (min-width: 768px) {
+    width: calc((100% / 2) - 20px);
+    margin: 10px;
+  }
+
+  @media (min-width: 1024px) {
+    width: calc((100% / 3) - 20px);
+    margin: 10px;
+  }
+
+  @media (min-width: 1280px) {
+    width: calc((100% / 4) - 20px);
+    margin: 10px;
+  }
+}
+
+.caption {
+  background-color: rgba(0, 0, 0, 0.7);
+}
