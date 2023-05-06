@@ -1,12 +1,10 @@
-import HeartToggleButton from "@/components/HeartToggleButton";
 import SearchBar from "@/components/SearchBar/SearchBar";
-import StarToggleButton from "@/components/StarToggleButton";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Anime } from "@/components/AnimeList";
+import { Anime, AnimeListProps } from "@/components/AnimeList";
 import AnimeList from "@/components/AnimeList/AnimeList";
 import { useDebounce } from "use-debounce";
-import { Spinner } from "@/icons";
+import { Heart, Spinner, Star } from "@/icons";
 
 const baseUrl = "https://kitsu.io/api/edge";
 
@@ -14,6 +12,20 @@ interface PaginationData {
   next?: string;
   prev?: string;
 }
+
+const getStarredMap = () => {
+  const starred = localStorage.getItem("starred");
+  return starred
+    ? new Map<string, boolean>(Object.entries(JSON.parse(starred)))
+    : new Map<string, boolean>();
+};
+
+const getFavoritesMap = () => {
+  const favorites = localStorage.getItem("favorites");
+  return favorites
+    ? new Map<string, boolean>(Object.entries(JSON.parse(favorites)))
+    : new Map<string, boolean>();
+};
 
 /**
  * Renders the homepage view.
@@ -34,6 +46,9 @@ const Homepage = (): JSX.Element => {
 
   useEffect(() => {
     const fetchAnimeList = async () => {
+      const starredMap = getStarredMap();
+      const favoritesMap = getFavoritesMap();
+
       try {
         const { data } = await axios.get(`${baseUrl}/anime`);
 
@@ -43,6 +58,8 @@ const Homepage = (): JSX.Element => {
           title: anime.attributes.canonicalTitle,
           rating: anime.attributes.averageRating,
           favoritesCount: anime.attributes.favoritesCount,
+          isStarred: !!starredMap.get(anime.id),
+          isFavorite: !!favoritesMap.get(anime.id),
         }));
 
         setAnimeData(list);
@@ -59,8 +76,11 @@ const Homepage = (): JSX.Element => {
     fetchAnimeList();
   }, []);
 
-  const onPaginateHandler = async () => {
+  const onPaginateHandler: AnimeListProps["onPaginate"] = async () => {
     if (!paginationData.next) return;
+
+    const starredMap = getStarredMap();
+    const favoritesMap = getFavoritesMap();
 
     try {
       const { data } = await axios.get(paginationData.next);
@@ -71,13 +91,61 @@ const Homepage = (): JSX.Element => {
         title: anime.attributes.canonicalTitle,
         rating: anime.attributes.averageRating,
         favoritesCount: anime.attributes.favoritesCount,
+        isStarred: !!starredMap.get(anime.id),
+        isFavorite: !!favoritesMap.get(anime.id),
       }));
 
       setAnimeData((prev) => prev.concat(list));
       setPaginationData({ next: data.links.next, prev: data.links.prev });
     } catch (e) {
+      setAnimeData([]);
+      setPaginationData({});
       alert("An error occurred. Please try again.");
     }
+  };
+
+  const onToggleFavoriteHandler: AnimeListProps["onToggleFavorite"] = (
+    id,
+    value
+  ) => {
+    const favoritesMap = getFavoritesMap();
+
+    if (value) {
+      favoritesMap.set(id, true);
+    } else {
+      favoritesMap.delete(id);
+    }
+
+    const json = JSON.stringify(Object.fromEntries(favoritesMap));
+    localStorage.setItem("favorites", json);
+
+    const updatedAnimeData = animeData.map((anime) => {
+      if (anime.id !== id) return anime;
+      return { ...anime, isFavorite: value };
+    });
+    setAnimeData(updatedAnimeData);
+  };
+
+  const onToggleStarredHandler: AnimeListProps["onToggleStarred"] = (
+    id,
+    value
+  ) => {
+    const starredMap = getFavoritesMap();
+
+    if (value) {
+      starredMap.set(id, true);
+    } else {
+      starredMap.delete(id);
+    }
+
+    const json = JSON.stringify(Object.fromEntries(starredMap));
+    localStorage.setItem("starred", json);
+
+    const updatedAnimeData = animeData.map((anime) => {
+      if (anime.id !== id) return anime;
+      return { ...anime, isStarred: value };
+    });
+    setAnimeData(updatedAnimeData);
   };
 
   const filteredAnimeData = useMemo(() => {
@@ -99,14 +167,20 @@ const Homepage = (): JSX.Element => {
       <div className="flex flex-col md:flex-row md:items-center gap-1 mb-5">
         <div className="flex flex-1 md:flex-1 gap-x-1">
           <p>Filter</p>
-          <StarToggleButton
-            active={isActiveStarFilter}
-            onToggle={() => setIsActiveStarFilter((prev) => !prev)}
-          />
-          <HeartToggleButton
-            active={isActiveHeartFilter}
-            onToggle={() => setIsActiveHeartFilter((prev) => !prev)}
-          />
+
+          <button onClick={() => setIsActiveStarFilter((prev) => !prev)}>
+            <Star
+              fill={isActiveStarFilter ? "#fefe08" : "transparent"}
+              stroke={isActiveStarFilter ? "#fefe08" : "currentColor"}
+            />
+          </button>
+
+          <button onClick={() => setIsActiveHeartFilter((prev) => !prev)}>
+            <Heart
+              fill={isActiveHeartFilter ? "#ce2a29" : "transparent"}
+              stroke={isActiveHeartFilter ? "#ce2a29" : "currentColor"}
+            />
+          </button>
         </div>
 
         <div className="flex flex-1 md:flex-auto">
@@ -137,6 +211,8 @@ const Homepage = (): JSX.Element => {
             data={filteredAnimeData}
             hasMore={!!paginationData.next}
             onPaginate={onPaginateHandler}
+            onToggleFavorite={onToggleFavoriteHandler}
+            onToggleStarred={onToggleStarredHandler}
           />
         )}
 

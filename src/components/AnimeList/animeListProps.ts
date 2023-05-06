@@ -1,13 +1,17 @@
 export interface Anime {
+  favoritesCount: number;
   id: string;
   image: string;
-  title: string;
+  isFavorite: boolean;
+  isStarred: boolean;
   rating: number;
-  favoritesCount: number;
+  title: string;
 }
 
 export default interface AnimeListProps {
   data: Array<Anime>;
   hasMore?: boolean;
   onPaginate?: () => void;
+  onToggleFavorite?: (id: string, active: boolean) => void;
+  onToggleStarred?: (id: string, active: boolean) => void;
 }

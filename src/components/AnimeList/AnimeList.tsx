@@ -13,6 +13,8 @@ const AnimeList = ({
   data,
   hasMore = false,
   onPaginate,
+  onToggleFavorite,
+  onToggleStarred,
 }: AnimeListProps): JSX.Element => {
   const Loader = (
     <div className="flex basis-full justify-center">
@@ -44,12 +46,31 @@ const AnimeList = ({
 
               <div className="flex">
                 <span className="flex flex-1 gap-x-1 items-center text-white">
-                  <Star fill="currentColor" />
+                  <button
+                    onClick={() => {
+                      onToggleStarred?.(anime.id, !anime.isStarred);
+                    }}
+                  >
+                    <Star
+                      fill={anime.isStarred ? "#fefe08" : "currentColor"}
+                      stroke={anime.isStarred ? "#fefe08" : "currentColor"}
+                    />
+                  </button>
                   {anime.rating}
                 </span>
 
                 <span className="flex flex-1 gap-x-1 items-center text-white">
-                  <Heart fill="currentColor" />
+                  <button
+                    onClick={() => {
+                      onToggleFavorite?.(anime.id, !anime.isFavorite);
+                    }}
+                  >
+                    <Heart
+                      fill={anime.isFavorite ? "#ce2a29" : "currentColor"}
+                      stroke={anime.isFavorite ? "#ce2a29" : "currentColor"}
+                    />
+                  </button>
+
                   {anime.favoritesCount}
                 </span>
               </div>
