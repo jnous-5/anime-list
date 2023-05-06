@@ -8,4 +8,6 @@ export interface Anime {
 
 export default interface AnimeListProps {
   data: Array<Anime>;
+  hasMore?: boolean;
+  onPaginate?: () => void;
 }

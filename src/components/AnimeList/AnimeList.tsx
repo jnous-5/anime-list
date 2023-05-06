@@ -1,6 +1,7 @@
-import { Star, Heart } from "@/icons";
+import { Star, Heart, Spinner } from "@/icons";
 import { AnimeListProps } from ".";
 import styles from "./AnimeList.module.css";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 /**
  * Renders a list of anime.
@@ -8,9 +9,26 @@ import styles from "./AnimeList.module.css";
  * @param {AnimeListProps} props
  * @returns {JSX.Element}
  */
-const AnimeList = ({ data }: AnimeListProps): JSX.Element => {
+const AnimeList = ({
+  data,
+  hasMore = false,
+  onPaginate,
+}: AnimeListProps): JSX.Element => {
+  const Loader = (
+    <div className="flex basis-full justify-center">
+      <Spinner />
+    </div>
+  );
+
   return (
-    <div className={`${styles.container} flex flex-wrap`}>
+    <InfiniteScroll
+      className={`${styles.container} flex flex-wrap`}
+      style={{ overflow: "visible" }}
+      dataLength={data.length}
+      hasMore={hasMore}
+      loader={Loader}
+      next={() => onPaginate?.()}
+    >
       {data.map((anime) => (
         <div key={anime.id} className={`${styles.item} flex-0 h-96 relative`}>
           <img
@@ -37,7 +55,7 @@ const AnimeList = ({ data }: AnimeListProps): JSX.Element => {
           </div>
         </div>
       ))}
-    </div>
+    </InfiniteScroll>
   );
 };
 

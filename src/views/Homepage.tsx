@@ -1,8 +1,18 @@
 import HeartToggleButton from "@/components/HeartToggleButton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import StarToggleButton from "@/components/StarToggleButton";
-import { Heart, Star } from "@/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Anime } from "@/components/AnimeList";
+import AnimeList from "@/components/AnimeList/AnimeList";
+import { Spinner } from "@/icons";
+
+const baseUrl = "https://kitsu.io/api/edge";
+
+interface PaginationData {
+  next?: string;
+  prev?: string;
+}
 
 /**
  * Renders the homepage view.
@@ -10,8 +20,61 @@ import { useState } from "react";
  * @returns {JSX.Element}
  */
 const Homepage = (): JSX.Element => {
+  const [isLoading, setIsLoading] = useState(true);
+
   const [isActiveStarFilter, setIsActiveStarFilter] = useState(false);
   const [isActiveHeartFilter, setIsActiveHeartFilter] = useState(false);
+
+  const [animeData, setAnimeData] = useState<Array<Anime>>([]);
+  const [paginationData, setPaginationData] = useState<PaginationData>({});
+
+  useEffect(() => {
+    const fetchAnimeList = async () => {
+      try {
+        const { data } = await axios.get(`${baseUrl}/anime`);
+
+        const list = data.data.map((anime: any) => ({
+          id: anime.id,
+          image: anime.attributes.posterImage.large,
+          title: anime.attributes.canonicalTitle,
+          rating: anime.attributes.averageRating,
+          favoritesCount: anime.attributes.favoritesCount,
+        }));
+
+        setAnimeData(list);
+        setPaginationData({ next: data.links.next, prev: data.links.prev });
+      } catch (e) {
+        setAnimeData([]);
+        setPaginationData({});
+        alert("An error occurred. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnimeList();
+  }, []);
+
+  const onPaginateHandler = async () => {
+    if (!paginationData.next) return;
+
+    try {
+      const { data } = await axios.get(paginationData.next);
+
+      const list = data.data.map((anime: any) => ({
+        id: anime.id,
+        image: anime.attributes.posterImage.large,
+        title: anime.attributes.canonicalTitle,
+        rating: anime.attributes.averageRating,
+        favoritesCount: anime.attributes.favoritesCount,
+      }));
+
+      setAnimeData((prev) => prev.concat(list));
+      setPaginationData({ next: data.links.next, prev: data.links.prev });
+    } catch (e) {
+      alert("An error occurred. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -35,145 +98,22 @@ const Homepage = (): JSX.Element => {
         </div>
 
         <div className="flex flex-1 md:flex-1 md:justify-end">
-          <p>8 Results</p>
+          <p>
+            {animeData.length} {animeData.length === 1 ? "Result" : "Results"}
+          </p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-7 justify-between">
-        <div className="basis-full md:basis-5/12 lg:basis-1/5 h-full relative">
-          <img
-            className="w-full h-full object-cover"
-            src="https://media.kitsu.io/anime/poster_images/1/original.jpg"
+      <div className="flex justify-center">
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <AnimeList
+            data={animeData}
+            hasMore={!!paginationData.next}
+            onPaginate={onPaginateHandler}
           />
-          <div
-            className="absolute bottom-0 left-0 right-0 px-4 py-5"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
-          >
-            <h3 className="text-white mb-2">
-              Cowboy Bebop: Knockin' on Heaven's Door
-            </h3>
-
-            <div className="flex">
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Star fill="currentColor" />
-                95.23
-              </span>
-
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Heart fill="currentColor" />
-                500
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="basis-full md:basis-5/12 lg:basis-1/5 h-full relative">
-          <img
-            className="w-full h-full object-cover"
-            src="https://media.kitsu.io/anime/poster_images/1/original.jpg"
-          />
-          <div
-            className="absolute bottom-0 left-0 right-0 px-4 py-5"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
-          >
-            <h3 className="text-white mb-2">
-              Cowboy Bebop: Knockin' on Heaven's Door
-            </h3>
-
-            <div className="flex">
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Star fill="currentColor" />
-                95.23
-              </span>
-
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Heart fill="currentColor" />
-                500
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="basis-full md:basis-5/12 lg:basis-1/5 h-full relative">
-          <img
-            className="w-full h-full object-cover"
-            src="https://media.kitsu.io/anime/poster_images/1/original.jpg"
-          />
-          <div
-            className="absolute bottom-0 left-0 right-0 px-4 py-5"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
-          >
-            <h3 className="text-white mb-2">
-              Cowboy Bebop: Knockin' on Heaven's Door
-            </h3>
-
-            <div className="flex">
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Star fill="currentColor" />
-                95.23
-              </span>
-
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Heart fill="currentColor" />
-                500
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="basis-full md:basis-5/12 lg:basis-1/5 h-full relative">
-          <img
-            className="w-full h-full object-cover"
-            src="https://media.kitsu.io/anime/poster_images/1/original.jpg"
-          />
-          <div
-            className="absolute bottom-0 left-0 right-0 px-4 py-5"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
-          >
-            <h3 className="text-white mb-2">
-              Cowboy Bebop: Knockin' on Heaven's Door
-            </h3>
-
-            <div className="flex">
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Star fill="currentColor" />
-                95.23
-              </span>
-
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Heart fill="currentColor" />
-                500
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="basis-full md:basis-5/12 lg:basis-1/5 h-full relative">
-          <img
-            className="w-full h-full object-cover"
-            src="https://media.kitsu.io/anime/poster_images/1/original.jpg"
-          />
-          <div
-            className="absolute bottom-0 left-0 right-0 px-4 py-5"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
-          >
-            <h3 className="text-white mb-2">
-              Cowboy Bebop: Knockin' on Heaven's Door
-            </h3>
-
-            <div className="flex">
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Star fill="currentColor" />
-                95.23
-              </span>
-
-              <span className="flex flex-1 gap-x-1 items-center text-white">
-                <Heart fill="currentColor" />
-                500
-              </span>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </>
   );

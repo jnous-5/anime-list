@@ -4,6 +4,10 @@
   }
 }
 
+.container > svg {
+  flex-basis: 100%;
+}
+
 .item {
   width: 100%;
   margin-bottom: 10px;
