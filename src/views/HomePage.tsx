@@ -28,11 +28,11 @@ const getFavoritesMap = () => {
 };
 
 /**
- * Renders the homepage view.
+ * Renders the home page view.
  *
  * @returns {JSX.Element}
  */
-const Homepage = (): JSX.Element => {
+const HomePage = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchBarValue, setSearchBarValue] = useState("");
@@ -239,4 +239,4 @@ const Homepage = (): JSX.Element => {
   );
 };
 
-export default Homepage;
+export default HomePage;

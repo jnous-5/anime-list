@@ -1,15 +1,15 @@
 import MainLayout from "@/layouts/MainLayout";
-import Homepage from "@/views/Homepage";
+import HomePage from "@/views/HomePage";
 
 /**
- * Homepage component.
+ * Home page.
  *
  * @returns {JSX.Element}
  */
 const Home = (): JSX.Element => {
   return (
     <MainLayout>
-      <Homepage />
+      <HomePage />
     </MainLayout>
   );
 };
