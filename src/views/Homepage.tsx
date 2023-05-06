@@ -22,6 +22,8 @@ interface PaginationData {
 const Homepage = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(true);
 
+  const [searchBarValue, setSearchBarValue] = useState("");
+
   const [isActiveStarFilter, setIsActiveStarFilter] = useState(false);
   const [isActiveHeartFilter, setIsActiveHeartFilter] = useState(false);
 
@@ -94,7 +96,11 @@ const Homepage = (): JSX.Element => {
         </div>
 
         <div className="flex flex-1 md:flex-auto">
-          <SearchBar placeholder="Search anime" />
+          <SearchBar
+            onChange={(e) => setSearchBarValue(e.target.value)}
+            placeholder="Search anime"
+            value={searchBarValue}
+          />
         </div>
 
         <div className="flex flex-1 md:flex-1 md:justify-end">
