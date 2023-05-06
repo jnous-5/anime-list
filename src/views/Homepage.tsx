@@ -1,10 +1,11 @@
 import HeartToggleButton from "@/components/HeartToggleButton";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import StarToggleButton from "@/components/StarToggleButton";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Anime } from "@/components/AnimeList";
 import AnimeList from "@/components/AnimeList/AnimeList";
+import { useDebounce } from "use-debounce";
 import { Spinner } from "@/icons";
 
 const baseUrl = "https://kitsu.io/api/edge";
@@ -23,6 +24,7 @@ const Homepage = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchBarValue, setSearchBarValue] = useState("");
+  const [debouncedSearchBarValue] = useDebounce(searchBarValue, 1000);
 
   const [isActiveStarFilter, setIsActiveStarFilter] = useState(false);
   const [isActiveHeartFilter, setIsActiveHeartFilter] = useState(false);
@@ -78,6 +80,18 @@ const Homepage = (): JSX.Element => {
     }
   };
 
+  const filteredAnimeData = useMemo(() => {
+    if (debouncedSearchBarValue) {
+      return animeData.filter((anime) => {
+        return anime.title
+          .toLowerCase()
+          .includes(debouncedSearchBarValue.toLowerCase());
+      });
+    }
+
+    return animeData;
+  }, [animeData, debouncedSearchBarValue]);
+
   return (
     <>
       <h1 className="text-center font-extrabold text-3xl mb-5">Anime List</h1>
@@ -105,20 +119,29 @@ const Homepage = (): JSX.Element => {
 
         <div className="flex flex-1 md:flex-1 md:justify-end">
           <p>
-            {animeData.length} {animeData.length === 1 ? "Result" : "Results"}
+            {filteredAnimeData.length}{" "}
+            {filteredAnimeData.length === 1 ? "Result" : "Results"}
           </p>
         </div>
       </div>
 
-      <div className="flex justify-center">
-        {isLoading ? (
-          <Spinner />
-        ) : (
+      <div className="flex">
+        {isLoading && (
+          <div className="flex flex-1 justify-center">
+            <Spinner />
+          </div>
+        )}
+
+        {!isLoading && filteredAnimeData.length > 0 && (
           <AnimeList
-            data={animeData}
+            data={filteredAnimeData}
             hasMore={!!paginationData.next}
             onPaginate={onPaginateHandler}
           />
+        )}
+
+        {!isLoading && filteredAnimeData.length <= 0 && (
+          <p className="w-full text-center">No results found.</p>
         )}
       </div>
     </>

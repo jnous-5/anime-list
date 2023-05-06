@@ -1,10 +1,14 @@
 .container {
+  width: 100%;
+}
+
+.wrapper {
   @media (min-width: 768px) {
     margin: -10px;
   }
 }
 
-.container > svg {
+.wrapper > svg {
   flex-basis: 100%;
 }
 
