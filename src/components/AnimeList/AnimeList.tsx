@@ -2,6 +2,7 @@ import { Star, Heart, Spinner } from "@/icons";
 import { AnimeListProps } from ".";
 import styles from "./AnimeList.module.css";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Link from "next/link";
 
 /**
  * Renders a list of anime.
@@ -33,7 +34,12 @@ const AnimeList = ({
         next={() => onPaginate?.()}
       >
         {data.map((anime) => (
-          <div key={anime.id} className={`${styles.item} flex-0 h-96 relative`}>
+          <Link
+            key={anime.id}
+            className={`${styles.item} flex-0 h-96 relative`}
+            href={`anime/${anime.id}`}
+            title="Navigate to anime details"
+          >
             <img
               className="w-full h-full object-cover"
               src={anime.image}
@@ -75,7 +81,7 @@ const AnimeList = ({
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </InfiniteScroll>
     </div>
