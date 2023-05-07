@@ -1,17 +1,23 @@
 import CharacterList from "@/components/CharacterList";
 import EpisodeList from "@/components/EpisodeList/EpisodeList";
 import { Check, ChevronLeft, Heart, Star } from "@/icons";
+import AnimeDetails from "@/types/AnimeDetails";
 import Link from "next/link";
+
+interface AnimePageProps {
+  data: AnimeDetails;
+}
 
 /**
  * Renders the anime page view.
  *
+ * @param {AnimePageProps} props
  * @returns {JSX.Element}
  */
-const AnimePage = (): JSX.Element => {
+const AnimePage = ({ data }: AnimePageProps): JSX.Element => {
   return (
     <>
-      <h1 className="text-center font-extrabold text-3xl mb-5">Cowboy Bebop</h1>
+      <h1 className="text-center font-extrabold text-3xl mb-5">{data.name}</h1>
 
       <div className="mb-3">
         <Link className="inline-flex items-center" href="/" title="Go back">
@@ -23,63 +29,45 @@ const AnimePage = (): JSX.Element => {
         <div className="flex flex-none flex-col gap-y-2">
           <img
             className="h-80 object-contain object-left"
-            src="https://media.kitsu.io/anime/poster_images/1/large.jpg"
-            alt="Cowboy Bebop"
+            src={data.image}
+            alt={data.name}
           />
 
           <div className="flex">
             <button>
               <Star />
             </button>
-            95.23 from 1000 users
+            {data.averageRating} from {data.userCount}{" "}
+            {data.userCount === 1 ? "user" : "users"}
           </div>
 
           <div className="flex">
             <button>
               <Heart />
             </button>
-            500 <span className="ml-5">Rank #5</span>
+            {data.favoritesCount}{" "}
+            <span className="ml-5">Rank #{data.popularityRank}</span>
           </div>
 
-          <p>Rated R: 17+ (violence and profanity)</p>
-          <p>Aired on 1999-04-03</p>
-          <p>Ongoing or Ended on 1998-04-03</p>
-          <p>Type: Movie</p>
+          <p>
+            Rated {data.ageRating}: {data.ageRatingGuide}
+          </p>
+          <p>Aired on {data.startDate}</p>
+          <p>Ongoing or Ended on {data.endDate}</p>
+          <p>Type: {data.showType}</p>
         </div>
 
         <div className="flex flex-1 flex-col gap-y-7">
-          <p>
-            In the year 2071, humanity has colonized several of the planets and
-            moons of the solar system leaving the now uninhabitable surface of
-            planet Earth behind. The Inter Solar System Police attempts to keep
-            peace in the galaxy, aided in part by outlaw bounty hunters,
-            referred to as \"Cowboys\". The ragtag team aboard the spaceship
-            Bebop are two such individuals. <br />
-            Mellow and carefree Spike Spiegel is balanced by his boisterous,
-            pragmatic partner Jet Black as the pair makes a living chasing
-            bounties and collecting rewards. Thrown off course by the addition
-            of new members that they meet in their travels—Ein, a genetically
-            engineered, highly intelligent Welsh Corgi; femme fatale Faye
-            Valentine, an enigmatic trickster with memory loss; and the strange
-            computer whiz kid Edward Wong—the crew embarks on thrilling
-            adventures that unravel each member's dark and mysterious past
-            little by little. <br />
-            Well-balanced with high density action and light-hearted comedy,
-            Cowboy Bebop is a space Western classic and an homage to the smooth
-            and improvised music it is named after.
-            <br />
-            <br />
-            (Source: MAL Rewrite)
-          </p>
+          <p className="whitespace-pre-wrap">{data.description}</p>
 
           <div>
             <h2 className="font-bold mb-3">Characters</h2>
-            <CharacterList />
+            <CharacterList data={data.characters} />
           </div>
 
           <div>
             <h2 className="font-bold mb-3">Episodes</h2>
-            <EpisodeList />
+            <EpisodeList data={data.episodes} />
           </div>
         </div>
       </div>
