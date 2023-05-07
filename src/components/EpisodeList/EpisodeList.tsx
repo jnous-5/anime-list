@@ -26,7 +26,7 @@ const EpisodeList = ({
           </button>
           <span className="ml-2 mr-5">{episode.airDate}</span>
           <span className="mr-1">{index + 1}.</span>
-          <span>{episode.title}</span>
+          <span>{episode.title || "No information."}</span>
         </li>
       ))}
     </ul>
