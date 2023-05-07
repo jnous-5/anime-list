@@ -1,11 +1,14 @@
 import CharacterList from "@/components/CharacterList";
+import { EpisodeListProps } from "@/components/EpisodeList";
 import EpisodeList from "@/components/EpisodeList/EpisodeList";
 import getFavoritesMap from "@/helpers/getFavoritesMap";
 import getStarredMap from "@/helpers/getStarredMap";
+import getWatchedEpisodesMap from "@/helpers/getWatchedEpisodesMap";
 import { Check, ChevronLeft, Heart, Star } from "@/icons";
 import AnimeDetails from "@/types/AnimeDetails";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import internal from "stream";
 
 interface AnimePageProps {
   data: AnimeDetails;
@@ -18,6 +21,21 @@ interface AnimePageProps {
  * @returns {JSX.Element}
  */
 const AnimePage = ({ data }: AnimePageProps): JSX.Element => {
+  const [episodesData, setEpisodesData] = useState<EpisodeListProps["data"]>(
+    () => data.episodes.map((episode) => ({ ...episode, isWatched: false }))
+  );
+
+  useEffect(() => {
+    const watchedMap = getWatchedEpisodesMap();
+
+    const updatedEpisodesData = data.episodes.map((episode) => {
+      const episodes = watchedMap.get(data.id) ?? [];
+      return { ...episode, isWatched: episodes.includes(episode.id) };
+    });
+
+    return setEpisodesData(updatedEpisodesData);
+  }, [data.episodes]);
+
   const [isActiveStarFilter, setIsActiveStarFilter] = useState(false);
   const [isActiveFavoriteFilter, setIsActiveFavoriteFilter] = useState(false);
 
@@ -49,6 +67,29 @@ const AnimePage = ({ data }: AnimePageProps): JSX.Element => {
     localStorage.setItem("favorites", json);
 
     setIsActiveFavoriteFilter((prev) => !prev);
+  };
+
+  const onToggleWatchedHandler: EpisodeListProps["onToggleWatched"] = (
+    id,
+    value
+  ) => {
+    const watched = getWatchedEpisodesMap();
+
+    const watchedEpisodes = watched.get(data.id) ?? [];
+    const newWatchedEpisodes = value
+      ? [...watchedEpisodes, id]
+      : watchedEpisodes.filter((episode) => episode !== id);
+
+    watched.set(data.id, newWatchedEpisodes);
+
+    const json = JSON.stringify(Object.fromEntries(watched));
+    localStorage.setItem("watched", json);
+
+    const newEpisodesData = episodesData.map((episode) => {
+      if (episode.id !== id) return episode;
+      return { ...episode, isWatched: value };
+    });
+    setEpisodesData(newEpisodesData);
   };
 
   useEffect(() => {
@@ -119,7 +160,10 @@ const AnimePage = ({ data }: AnimePageProps): JSX.Element => {
 
           <div>
             <h2 className="font-bold mb-3">Episodes</h2>
-            <EpisodeList data={data.episodes} />
+            <EpisodeList
+              data={episodesData}
+              onToggleWatched={onToggleWatchedHandler}
+            />
           </div>
         </div>
       </div>

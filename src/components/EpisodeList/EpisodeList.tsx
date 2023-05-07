@@ -7,7 +7,10 @@ import { EpisodeListProps } from ".";
  * @param {EpisodeListProps} props
  * @returns {JSX.Element}
  */
-const EpisodeList = ({ data }: EpisodeListProps): JSX.Element => {
+const EpisodeList = ({
+  data,
+  onToggleWatched,
+}: EpisodeListProps): JSX.Element => {
   if (data.length === 0) {
     return <p>No information.</p>;
   }
@@ -16,8 +19,10 @@ const EpisodeList = ({ data }: EpisodeListProps): JSX.Element => {
     <ul>
       {data.map((episode, index) => (
         <li key={episode.id} className="flex">
-          <button>
-            <Check stroke="#019e10" />
+          <button
+            onClick={() => onToggleWatched?.(episode.id, !episode.isWatched)}
+          >
+            <Check stroke={episode.isWatched ? "#019e10" : "currentColor"} />
           </button>
           <span className="ml-2 mr-5">{episode.airDate}</span>
           <span className="mr-1">{index + 1}.</span>
