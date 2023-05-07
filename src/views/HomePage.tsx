@@ -6,8 +6,6 @@ import AnimeList from "@/components/AnimeList/AnimeList";
 import { useDebounce } from "use-debounce";
 import { Heart, Spinner, Star } from "@/icons";
 
-const baseUrl = "https://kitsu.io/api/edge";
-
 interface PaginationData {
   next?: string;
   prev?: string;
@@ -50,7 +48,9 @@ const HomePage = (): JSX.Element => {
       const favoritesMap = getFavoritesMap();
 
       try {
-        const { data } = await axios.get(`${baseUrl}/anime`);
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/anime`
+        );
 
         const list = data.data.map((anime: any) => ({
           id: anime.id,
