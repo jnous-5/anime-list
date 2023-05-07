@@ -15,7 +15,7 @@ const EpisodeList = ({ data }: EpisodeListProps): JSX.Element => {
   return (
     <ul>
       {data.map((episode, index) => (
-        <li className="flex">
+        <li key={episode.id} className="flex">
           <button>
             <Check stroke="#019e10" />
           </button>

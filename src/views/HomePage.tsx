@@ -5,25 +5,13 @@ import { Anime, AnimeListProps } from "@/components/AnimeList";
 import AnimeList from "@/components/AnimeList/AnimeList";
 import { useDebounce } from "use-debounce";
 import { Heart, Spinner, Star } from "@/icons";
+import getFavoritesMap from "@/helpers/getFavoritesMap";
+import getStarredMap from "@/helpers/getStarredMap";
 
 interface PaginationData {
   next?: string;
   prev?: string;
 }
-
-const getStarredMap = () => {
-  const starred = localStorage.getItem("starred");
-  return starred
-    ? new Map<string, boolean>(Object.entries(JSON.parse(starred)))
-    : new Map<string, boolean>();
-};
-
-const getFavoritesMap = () => {
-  const favorites = localStorage.getItem("favorites");
-  return favorites
-    ? new Map<string, boolean>(Object.entries(JSON.parse(favorites)))
-    : new Map<string, boolean>();
-};
 
 /**
  * Renders the home page view.
@@ -104,28 +92,6 @@ const HomePage = (): JSX.Element => {
     }
   };
 
-  const onToggleFavoriteHandler: AnimeListProps["onToggleFavorite"] = (
-    id,
-    value
-  ) => {
-    const favoritesMap = getFavoritesMap();
-
-    if (value) {
-      favoritesMap.set(id, true);
-    } else {
-      favoritesMap.delete(id);
-    }
-
-    const json = JSON.stringify(Object.fromEntries(favoritesMap));
-    localStorage.setItem("favorites", json);
-
-    const updatedAnimeData = animeData.map((anime) => {
-      if (anime.id !== id) return anime;
-      return { ...anime, isFavorite: value };
-    });
-    setAnimeData(updatedAnimeData);
-  };
-
   const onToggleStarredHandler: AnimeListProps["onToggleStarred"] = (
     id,
     value
@@ -144,6 +110,28 @@ const HomePage = (): JSX.Element => {
     const updatedAnimeData = animeData.map((anime) => {
       if (anime.id !== id) return anime;
       return { ...anime, isStarred: value };
+    });
+    setAnimeData(updatedAnimeData);
+  };
+
+  const onToggleFavoriteHandler: AnimeListProps["onToggleFavorite"] = (
+    id,
+    value
+  ) => {
+    const favoritesMap = getFavoritesMap();
+
+    if (value) {
+      favoritesMap.set(id, true);
+    } else {
+      favoritesMap.delete(id);
+    }
+
+    const json = JSON.stringify(Object.fromEntries(favoritesMap));
+    localStorage.setItem("favorites", json);
+
+    const updatedAnimeData = animeData.map((anime) => {
+      if (anime.id !== id) return anime;
+      return { ...anime, isFavorite: value };
     });
     setAnimeData(updatedAnimeData);
   };
